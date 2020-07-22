@@ -11,6 +11,7 @@ name3='Images.txt';
     format longE
     warning off;
     C0 = readtable(name1,'HeaderLines',5);
+    Rinex = zeros(size(C0,1),5);
     for k=1:size(C0,1)
         % Year
         Rinex(k,1)=C0{k,4};
@@ -30,7 +31,8 @@ name3='Images.txt';
     Row=[];
     RawData=[];
     
-    C0 = readtable('Timestamp.txt');
+    C0 = readtable(name2);
+    TimeStamp = zeros(size(C0,1),10);
     for i=1:size(C0,1)    
         % ID
         TimeStamp(i,1)=C0{i,1};
