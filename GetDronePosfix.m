@@ -14,13 +14,13 @@ name3='Images.txt';
     Rinex = zeros(size(C0,1),5);
     for k=1:size(C0,1)
         % Year
-        Rinex(k,1)=C0{k,4};
+        Rinex(k,1)=str2double(C0{k,4});
         % UTM Northing
-        Rinex(k,2)=C0{k,30};
+        Rinex(k,2)=str2double(C0{k,30});
         % UTM Easting
-        Rinex(k,3)=C0{k,29};
+        Rinex(k,3)=str2double(C0{k,29});
         % Elevation, it should be in the CGVD2013 system
-        Rinex(k,4)=C0{k,38};
+        Rinex(k,4)=str2double(C0{k,38});
         % Time in hours since beginning of UTC day
         Rinex(k,5)= (Rinex(k,1)-fix(Rinex(k,1)))*24.0;
     end
@@ -41,19 +41,19 @@ name3='Images.txt';
         % GPS week (continuous from Jan 5. 1980 - the true GPS Week Number count began around midnight on Jan. 5, 1980, with two resets once hitting 1,023)
         WeekNo=C0{i,3};
         WeekNo=WeekNo{1,1};
-        TimeStamp(i,3)=str2num(WeekNo(2:end-1));
+        TimeStamp(i,3)=str2double(WeekNo(2:end-1));
         % Correction Northing
         NorthCor=C0{i,4};
         NorthCor=NorthCor{1,1};
-        TimeStamp(i,4)=str2num(NorthCor(1:end-2));
+        TimeStamp(i,4)=str2double(NorthCor(1:end-2));
         % Correction Easting
         EastCor=C0{i,5};
         EastCor=EastCor{1,1};
-        TimeStamp(i,5)=str2num(EastCor(1:end-2));
+        TimeStamp(i,5)=str2double(EastCor(1:end-2));
         % Correction Elevation
         ElevCor=C0{i,6};
         ElevCor=ElevCor{1,1};
-        TimeStamp(i,6)=str2num(ElevCor(1:end-2));
+        TimeStamp(i,6)=str2double(ElevCor(1:end-2));
         % Locations for storing corrected N E Elev
         TimeStamp(i,7)=0;
         TimeStamp(i,8)=0;
