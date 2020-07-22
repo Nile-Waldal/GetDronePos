@@ -2,11 +2,11 @@ function GetDronePos
 %%file names
 % change the file format to .txt and change file names to Rinex.txt and Timestamp.txt
 % Rinex position file
-name1=['Rinex.txt';];
+name1='Rinex.txt';
 % Timestamp file
-name2=['Timestamp.txt'];
+name2='Timestamp.txt';
 % Images txt file
-name3=['Images.txt'];
+name3='Images.txt';
 %% READ in position file
     format longE
     warning off;
