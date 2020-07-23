@@ -4,9 +4,10 @@ function GetDronePos
 % Rinex position file
 name1='Rinex.txt';
 % Timestamp file
-name2='Timestamp.txt';
+%name2='Timestamp.txt';   --> variable not used
 % Images txt file
 name3='Images.txt';
+
 %% READ in position file
     format longE
     warning off;
@@ -24,7 +25,8 @@ name3='Images.txt';
         % Time in hours since beginning of UTC day
         Rinex(k,5)= (Rinex(k,1)-fix(Rinex(k,1)))*24.0;
     end
-    %% READ in TimeStamp file
+    
+%% READ in TimeStamp file
     C0 = readtable(name2);
     TimeStamp = zeros(size(C0,1),10);
     for i=1:size(C0,1)    
@@ -54,44 +56,43 @@ name3='Images.txt';
         TimeStamp(i,9)=0;
         TimeStamp(i,10)=TimeStamp(i,2)/60/60-fix(TimeStamp(i,2)/60/60/24)*24;
     end
-    %% get Images' name
+    
+    %% get Image names
     format longE
     C0 = readtable(name3,'ReadVariableNames',false);
 
-    
-    %% getStampLocation
-    % GPS continuous week count of 2055 starts on 2019-May-26 (Sunday) UTC
+    %% getStampLocation - GPS continuous week count of 2055 starts on 2019-May-26 (Sunday) UTC
     for j1=1:size(TimeStamp,1)-1
         if abs(TimeStamp(j1,10)-TimeStamp(j1+1,10))>23
             TimeStamp(j1+1:end,10)=TimeStamp(j1+1:end,10)+24;
+        else
             break
         end
     end
     
     for j=1:size(Rinex,1)-1
-        if abs(Rinex(j,5)-Rinex(j+1,5))>23
-            Rinex(j+1:end,5)=Rinex(j+1:end,5)+24;
+        if abs(Rinex(j,5)-Rinex(j+1,5)) > 23
+            Rinex(j+1:end,5) = Rinex(j+1:end,5)+24;
+        else
             break
         end
     end
     
     for j=1:size(TimeStamp,1)
-      Hour=TimeStamp(j,10);
-      for i=1:size(Rinex,1)-1
-          if (Rinex(i,5)-Hour)*(Rinex(i+1,5)-Hour)<0
-              TimeStamp(j,7:9)=Rinex(i,2:4)+(Rinex(i+1,2:4)-Rinex(i,2:4))/(Rinex(i+1,5)-Rinex(i,5))*(Hour-Rinex(i,5))+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
-              break
-          else 
-          if  Rinex(i,5)-Hour==0
-               TimeStamp(j,7:9)=Rinex(i,2:4)+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
-               break
-          end
-          end
-      end
+        Hour=TimeStamp(j,10);
+        for i=1:size(Rinex,1)-1
+            if (Rinex(i,5)-Hour)*(Rinex(i+1,5)-Hour) < 0
+                TimeStamp(j,7:9)=Rinex(i,2:4)+(Rinex(i+1,2:4)-Rinex(i,2:4))/(Rinex(i+1,5)-Rinex(i,5))*(Hour-Rinex(i,5))+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
+            elseif Rinex(i,5)-Hour == 0
+                TimeStamp(j,7:9)=Rinex(i,2:4)+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
+            else
+                break
+            end
+        end
     end
     
-    
     pix4d_data=C0;
+    
     for j=1:size(C0,1)
         Rows=C0{j,1};
         ImageNoChar=Rows{1};
@@ -101,7 +102,6 @@ name3='Images.txt';
         pix4d_data(j,3)={TimeStamp(d,7)};
         pix4d_data(j,4)={TimeStamp(d,9)};
     end
-% 
 name3=['UAV_camera_coords_' int2str(size(pix4d_data,1)) '.txt'];
     % ID Easting Northing Elevation   
 writetable(pix4d_data,name3,'WriteVariableNames',false);
