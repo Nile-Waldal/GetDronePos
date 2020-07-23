@@ -4,7 +4,7 @@ function GetDronePos
 % Rinex position file
 name1='Rinex.txt';
 % Timestamp file
-name2='Timestamp.txt';
+    %name2='Timestamp.txt';
 % Images txt file
 name3='Images.txt';
 %% READ in position file
@@ -62,32 +62,32 @@ name3='Images.txt';
     %% getStampLocation
     % GPS continuous week count of 2055 starts on 2019-May-26 (Sunday) UTC
     for j1=1:size(TimeStamp,1)-1
-        if abs(TimeStamp(j1,10)-TimeStamp(j1+1,10))>23
-            TimeStamp(j1+1:end,10)=TimeStamp(j1+1:end,10)+24;
+        if abs(TimeStamp(j1,10)-TimeStamp(j1+1,10)) > 23
+            TimeStamp(j1+1:end,10) = TimeStamp(j1+1:end,10)+24;
+        else
             break
         end
     end
     
     for j=1:size(Rinex,1)-1
         if abs(Rinex(j,5)-Rinex(j+1,5))>23
-            Rinex(j+1:end,5)=Rinex(j+1:end,5)+24;
+            Rinex(j+1:end,5) = Rinex(j+1:end,5)+24;
+        else
             break
         end
     end
     
     for j=1:size(TimeStamp,1)
-      Hour=TimeStamp(j,10);
-      for i=1:size(Rinex,1)-1
-          if (Rinex(i,5)-Hour)*(Rinex(i+1,5)-Hour)<0
-              TimeStamp(j,7:9)=Rinex(i,2:4)+(Rinex(i+1,2:4)-Rinex(i,2:4))/(Rinex(i+1,5)-Rinex(i,5))*(Hour-Rinex(i,5))+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
-              break
-          else 
-          if  Rinex(i,5)-Hour==0
-               TimeStamp(j,7:9)=Rinex(i,2:4)+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
-               break
-          end
-          end
-      end
+        Hour=TimeStamp(j,10);
+        for i=1:size(Rinex,1)-1
+            if (Rinex(i,5)-Hour)*(Rinex(i+1,5)-Hour) < 0
+                TimeStamp(j,7:9) = Rinex(i,2:4)+(Rinex(i+1,2:4)-Rinex(i,2:4))/(Rinex(i+1,5)-Rinex(i,5))*(Hour-Rinex(i,5))+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
+            elseif Rinex(i,5)-Hour == 0
+                TimeStamp(j,7:9) = Rinex(i,2:4)+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
+            else
+                break    
+            end
+        end
     end
     
     
