@@ -55,6 +55,7 @@ name3='Images.txt';
         TimeStamp(i,7)=0;
         TimeStamp(i,8)=0;
         TimeStamp(i,9)=0;
+        % Time in hours since beginning of GPS week
         TimeStamp(i,10)=TimeStamp(i,2)/60/60-fix(TimeStamp(i,2)/60/60/24)*24;
     end
     
@@ -75,17 +76,21 @@ name3='Images.txt';
     end
     
     % DJI captures images every t second. GPS location is recorded every 0.2s. Assuming constant velocity, timestamp is linearly interpolated.
-    for j=1:size(TimeStamp,1)
-        Hour=TimeStamp(j,10);
-        for i=1:size(Rinex,1)-1
-            if (Rinex(i,5)-Hour)*(Rinex(i+1,5)-Hour)<0
-                TimeStamp(j,7:9)=Rinex(i,2:4)+(Rinex(i+1,2:4)-Rinex(i,2:4))/(Rinex(i+1,5)-Rinex(i,5))*(Hour-Rinex(i,5))+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
-            else 
-                if  Rinex(i,5)-Hour==0
-                    TimeStamp(j,7:9)=Rinex(i,2:4)+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
-                end
-            end
-        end
+    for j=1:size(TimeStamp,1) 
+      Hour=TimeStamp(j,10);
+      % Finds closest Rinex time to the Timestamp time and determines index of its column.
+      [~,idx]=min(abs(Hour-Rinex(:,5)));
+      
+      % Determines whether Rinex entry is before or after Timestamp entry to determine which point should be taken for the interpolation.
+      cl=sign(Hour-Rinex(idx,5));
+      
+      % If the Rinex and Timestamp entries occur at the same time, the camera position correction is applied to the more accurate Rinex coordinates.
+      % If the Timestamp entry occurs between two Rinex entries, these points are linearly interpolated between and the estimated displacement is applied to the Rinex coordinates along with the camera correction.
+      if cl==0
+          TimeStamp(j,7:9)=Rinex(idx,2:4)+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
+      else
+          TimeStamp(j,7:9)=Rinex(idx,2:4)+(Rinex(idx+cl,2:4)-Rinex(idx,2:4))/(Rinex(idx+cl,5)-Rinex(idx,5))*(Hour-Rinex(idx,5))+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;          
+      end
     end
     
     pix4d_data=C0;
