@@ -5,10 +5,9 @@
 
 int main(void) {
   int i=0;;
-  fpos_t pos[256];
   DIR *folder;
   FILE* file, *pfile;
-  char filename[256],c,line[256]={'\0'},buff[1000];
+  char filename[256],line[256]={'\0'};
   char* ind;
   struct dirent *entry;
 
