@@ -1,5 +1,35 @@
 function GetDronePos
 format longE; warning off;
+%Generate an Images text file without Pix4D
+D = input('Input Image Location(Include full path to folder):','s');  
+%e.g. C:\Users\matth\Desktop\Project-Course
+F = dir(fullfile(D,'*.jpg'));                                       % specify the file extension to exclude directories
+T = struct2table(F);
+T1 = removevars(T,{'folder','date','bytes','isdir','datenum'});
+
+m1 = {0};
+for i = 1:height(T1)
+    extract1 = char(T1{i,1});                                       % goes through every single roll in 1st column
+    extract = strcat(D, '\', extract1);                             % counts image file name upwards
+    info = imfinfo(extract);
+    lat = dms2degrees(info.GPSInfo.GPSLatitude);
+    lon = dms2degrees(info.GPSInfo.GPSLongitude);
+    alt = info.GPSInfo.GPSAltitude;                                 % ALTITUDE SIG FIGS ONLY 3.... 
+    if strcmp(info.GPSInfo.GPSLatitudeRef,'S')
+        lat = -1 * lat;
+    end
+    if strcmp(info.GPSInfo.GPSLongitudeRef,'W')
+        lon = -1 * lon;
+    end
+ 	m1{i,1} = extract1;                                             % Creation of new table; 1st column is name
+    m1{i,2} = lat;
+    m1{i,3} = lon;
+    m1{i,4} = alt;
+    
+end
+T2 = array2table(m1);
+T2.Properties.VariableNames(1:4) = {'Name','Latitude','Longitude','Altitude'};
+writetable(T2,'meow_meow.txt','WriteVariableNames',0);              % create text file and remove headers   
 %%file names - change the file format to .txt and change file names to Rinex.txt and Timestamp.txt
 
 % Rinex position file
