@@ -29,7 +29,7 @@ for i = 1:height(T1)
 end
 T2 = array2table(m1);
 T2.Properties.VariableNames(1:4) = {'Name','Latitude','Longitude','Altitude'};
-writetable(T2,'meow_meow.txt','WriteVariableNames',0);              % create text file and remove headers   
+writetable(T2,'Images.txt','WriteVariableNames',0);              % create text file and remove headers   
 %%file names - change the file format to .txt and change file names to Rinex.txt and Timestamp.txt
 
 % Rinex position file
