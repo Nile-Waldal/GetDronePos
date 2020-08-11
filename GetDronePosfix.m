@@ -42,7 +42,7 @@ name3='Images.txt';
 
 %% READ in position file
 name1='Rinex.txt';
-C0 = readtable(name1,'HeaderLines',4);
+C0 = readtable(name1,'HeaderLines',5);
 Rinex = zeros(size(C0,1),5);
 for k=1:size(C0,1)
     % Year
