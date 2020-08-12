@@ -159,7 +159,7 @@ int main(void) {
       }
 
       //Resets file pointer to begininng of line and prints the corrected line
-      len=strlen(line);
+      len=(long) strlen(line);
       fseek(pfile,-len-1,SEEK_CUR);
       fputs(line,pfile);
 	  fseek(pfile, 0, SEEK_CUR);
