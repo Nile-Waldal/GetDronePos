@@ -30,6 +30,17 @@ for i = 1:height(T1)
     m1{i,2} = lat;
     m1{i,3} = lon;
     m1{i,4} = alt;
+    
+    inFolder = char(T1{i-j,1});                                     % IN PROGRESS: CHECKS FOR MISSING JPEG FILES... NEXT STEP IS TO ADD EMPTY ROWS @ MISSING LOCATION    
+    extract2 = inFolder(1:end-8);
+    extract3 = sprintf('%04d.JPG', i);
+    control = strcat(extract2,extract3);  
+    if (strcmp(inFolder,control)==0)                        
+        display(control);
+        j=j+1;
+%        i
+    end 
+
 end
 
 T2 = array2table(m1);
