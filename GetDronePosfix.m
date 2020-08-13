@@ -26,12 +26,12 @@ for i = 1:height(T1)
     if strcmp(info.GPSInfo.GPSLongitudeRef,'W')
         lon = -1 * lon;
     end
- 	m1{i,1} = extract1;                                             % Creation of new table; 1st column is name
+ 	m1{i,1} = extract1;                                             % creation of images.txt: 1st column is name
     m1{i,2} = lat;
     m1{i,3} = lon;
     m1{i,4} = alt;
     
-    inFolder = char(T1{i-j,1});                                     % IN PROGRESS: CHECKS FOR MISSING JPEG FILES... NEXT STEP IS TO ADD EMPTY ROWS @ MISSING LOCATION    
+    inFolder = char(T1{i-j,1});                                     % checks missing jpeg files, stores index
     extract2 = inFolder(1:end-8);
     extract3 = sprintf('%04d.JPG', i);
     control = strcat(extract2,extract3);  
@@ -46,10 +46,7 @@ end
 T2 = array2table(m1);
 T2.Properties.VariableNames(1:4) = {'Name','Latitude','Longitude','Altitude'};
 writetable(T2,'Images.txt','WriteVariableNames',0);              % create text file and remove headers   
-                                                                 % IMPROVEMENT: SKIP CREATION OF FILE "Images.txt" AND JUST USE IT DIRECTLY? ...AWAITING TENNANT APPROVAL...
 name3='Images.txt';
-
-
 
 %% READ in position file
 name1='Rinex.txt';
@@ -72,6 +69,13 @@ end
 name2='Timestamp.txt';
 C0 = readtable(name2);
 TimeStamp=zeros(size(C0,1),10);
+
+if m2 ~= 0
+    for i = 1:length(m2)
+        C0(m2(1,i),:)=[];                                       % delete specific row in timestamp.txt according to missing jpg files and store new table in C0
+    end
+end
+
 for i=1:size(C0,1)    
     % ID
     TimeStamp(i,1)=C0{i,1};
