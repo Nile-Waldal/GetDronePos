@@ -11,7 +11,7 @@ D = char(inputdlg(prompt,dlgtitle,dims));
 F = dir(fullfile(D,'*.jpg'));                                       % specify the file extension to exclude directories
 T = struct2table(F);
 T1 = removevars(T,{'folder','date','bytes','isdir','datenum'});
-m1 = {0};j=0;
+m1 = {0};j=0;m2 = (0);
 
 for i = 1:height(T1)
     extract1 = char(T1{i,1});                                       % goes through every single roll in 1st column
@@ -37,8 +37,8 @@ for i = 1:height(T1)
     control = strcat(extract2,extract3);  
     if (strcmp(inFolder,control)==0)                        
         display(control);
-        j=j+1;
-%        i
+        j = j+1;
+        m2(1,j) = i;  
     end 
 
 end
