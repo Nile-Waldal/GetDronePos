@@ -146,6 +146,13 @@ for j=1:size(TimeStamp,1)
         TimeStamp(j,9) = polyval(elevFit,Hour) - TimeStamp(j,6)/1000;          
     end
 end
+
+%Graphs for images 
+%Fn = polyval(northFit,DataSet(:,5));
+%plot(DataSet(:,5),DataSet(:,2), 'o')
+%hold on 
+%plot(DataSet(:,5), Fn, 'r--')
+
 pix4d_data=C0;
 for j=1:size(C0,1)
     Rows=C0{j,1};
