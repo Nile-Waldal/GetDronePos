@@ -131,8 +131,10 @@ for j=1:size(TimeStamp,1)
     points = 2; 
     % If the Rinex and Timestamp entries occur at the same time, the camera position correction is applied to the more accurate Rinex coordinates.
     % If the Timestamp entry occurs between two Rinex entries, these points are linearly interpolated between and the estimated displacement is applied to the Rinex coordinates along with the camera correction.
-    if cl==0 || idx>=size(Rinex,1)-points || idx<=points
+    if cl==0 
         TimeStamp(j,7:9)=Rinex(idx,2:4)+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
+    elseif idx>=size(Rinex,1)-points || idx<=points
+        TimeStamp(j,7:9)=Rinex(idx,2:4)+(Rinex(idx+cl,2:4)-Rinex(idx,2:4))/(Rinex(idx+cl,5)-Rinex(idx,5))*(Hour-Rinex(idx,5))+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
     else
         DataSet = Rinex(idx-points:idx+points,1:5);
         northFit = polyfit(DataSet(:,5),DataSet(:,2),10);
