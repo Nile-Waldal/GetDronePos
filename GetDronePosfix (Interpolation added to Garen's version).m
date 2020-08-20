@@ -73,7 +73,7 @@ TimeStamp=zeros(size(C0,1),10);
 if m2 ~= 0
     for i = 1:length(m2)
         C0(m2(1,i),:)=[];                                       % delete specific row in timestamp.txt according to missing jpg files and store new table in C0
-    end
+    end                                                         % % WARNING: Timestamp.txt is not changed; only variable C0/TimeStamp is changed in MatLab
 end
 
 for i=1:size(C0,1)    
@@ -141,7 +141,7 @@ for j=1:size(TimeStamp,1)
         eastFit = polyfit(DataSet(:,5),DataSet(:,3),10);
         elevFit = polyfit(DataSet(:,5),DataSet(:,4),10);
         
-        TimeStamp(j,7) = polyval(northFit,Hour) + TimeStamp(j,4)/1000;
+        TimeStamp(j,7) = polyval(northFit,Hour) + TimeStamp(j,4)/1000;                          % ARE THESE VARIABLES USED LATER ON???!!
         TimeStamp(j,8) = polyval(eastFit,Hour) + TimeStamp(j,5)/1000;
         TimeStamp(j,9) = polyval(elevFit,Hour) - TimeStamp(j,6)/1000;          
     end
