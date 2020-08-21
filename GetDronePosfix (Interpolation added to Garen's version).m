@@ -129,11 +129,17 @@ for j=1:size(TimeStamp,1)
     cl=sign(Hour-Rinex(idx,5));
     %Determines the number of points (either side of center) to consider for interpolation.
     points = 2; 
+    
     % If the Rinex and Timestamp entries occur at the same time, the camera position correction is applied to the more accurate Rinex coordinates.
-    % If the Timestamp entry occurs between two Rinex entries, these points are linearly interpolated between and the estimated displacement is applied to the Rinex coordinates along with the camera correction.
-    if cl==0 
+    % If the Timestamp entry occurs between two Rinex entries, these points are have a polynomial fit between them and the estimated displacement is applied to the Rinex coordinates along with the camera correction.
+    % If the index of the closest Rinex entry is at the beginning or end of
+    % the array, no interpolation is done
+    % If the index of the closest Rinex entry is one from the end or the
+    % beginning, not enough points are present for a polynomial fit, so a
+    % linear interpolation is performed.
+    if cl==0 || idx==size(Rinex,1) || idx==1
         TimeStamp(j,7:9)=Rinex(idx,2:4)+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
-    elseif idx>=size(Rinex,1)-points || idx<=points
+    elseif idx==size(Rinex,1)-points+1 || idx==points
         TimeStamp(j,7:9)=Rinex(idx,2:4)+(Rinex(idx+cl,2:4)-Rinex(idx,2:4))/(Rinex(idx+cl,5)-Rinex(idx,5))*(Hour-Rinex(idx,5))+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
     else
         DataSet = Rinex(idx-points:idx+points,1:5);
