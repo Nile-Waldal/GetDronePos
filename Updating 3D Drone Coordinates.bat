@@ -1,6 +1,14 @@
 @ECHO off
+
 ::This location is where the matlab code, RinexPrep.exe and NRC desktop app are located
-SET "location=C:\Program Files (x86)\Updating 3D Coordinates"
+SET "location=%USERPROFILE%\Desktop\Updating 3D Coordinates"
+IF NOT EXIST "%location%" (
+ECHO "Program Not Installed. Run Installer."
+PAUSE
+EXIT
+)
+
+:begin
 
 ::Prompts User for directory of drone files, i.e. the pictures, .mrk file and .obs file
 SET /p photos="Enter full path to directory: "
@@ -21,11 +29,17 @@ ECHO "Directory missing Rinex file"
 PAUSE
 EXIT
 )
-FOR /r "%photos%" %%a in ("*.jpg") DO SET ph=%%~nxa
-IF NOT DEFINED ph (
+FOR /r "%photos%" %%a in ("*.jpg") DO SET ph1=%%~nxa
+FOR /r "%photos%" %%a in ("*.png") DO SET ph2=%%~nxa
+FOR /r "%photos%" %%a in ("*.jpeg") DO SET ph3=%%~nxa
+IF NOT DEFINED ph1 (
+IF NOT DEFINED ph2 (
+IF NOT DEFINED ph3 (
 ECHO "Directory missing image files"
 PAUSE
 EXIT
+)
+)
 )
 
 ::Creates folder for outputs
@@ -67,6 +81,10 @@ move "%location%\Files\%file%" "%photos%"
 ::Runs Matlab Script and moves it back to original location
 matlab -wait -batch "try; run('%photos%\GetDronePos.m'); catch; end; quit;"
 move "%photos%\%file%" "%location%\Files"
+FOR /r "%photos%" %%a in ("UAV_camera_coords_*") DO SET uav=%%~nxa
+IF NOT DEFINED uav (
+ECHO "Error in MATLAB Script; UAV_camera_coords.txt not created, check input files"
+)
 
 ::Cleans up directories and sends all outputs to the output files
 CD "%location%"
@@ -80,3 +98,18 @@ MOVE "%location%\output_descriptions.txt" "%photos%\Output"
 MOVE "%location%\Rinex.csv" "%photos%\Output"
 MOVE "%location%\Rinex.pdf" "%photos%\Output"
 MOVE "%location%\Rinex.sum" "%photos%\Output"
+ECHO "Program succesfully executed"
+
+::Reruns program for more flight data
+:rerun
+SET /p "rerun=Enter more flight data? (y/n)"
+IF /I "rerun" EQ "y" (
+GOTO :begin
+) ELSE (
+IF /I "rerun" EQ "n" (
+EXIT
+) ELSE (
+GOTO :rerun
+)
+)
+
