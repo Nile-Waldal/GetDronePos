@@ -7,9 +7,12 @@ ECHO "Program Not Installed. Run Installer."
 PAUSE
 EXIT
 )
+::Clears Output files for reuse
+IF EXIST "%location%\UAV_camera_coords_all.txt" DEL "%location%\UAV_camera_coords_all.txt"
+CD "C:\Users\Nile.DESKTOP-ETACD6G\Desktop\Updating 3D Coordinates\Output"
+FOR /f "usebackq" %%G in (`DIR /A /B "%location%\Output\*"`) DO DEL %%~G
 
 :begin
-
 ::Prompts User for directory of drone files, i.e. the pictures, .mrk file and .obs file
 SET /p photos="Enter full path to directory: "
 IF NOT EXIST "%photos%" (
@@ -89,6 +92,7 @@ ECHO "Error in MATLAB Script; UAV_camera_coords.txt not created, check input fil
 ::Cleans up directories and sends all outputs to the output files
 CD "%location%"
 DEL Rinex_full_output.zip
+XCOPY "%photos%\UAV_camera_coords_*.txt" "%location%\Output"
 MOVE "%photos%\UAV_camera_coords_*.txt" "%photos%\Output"
 CD "%photos%"
 REN "%photos%\Rinex.txt" RinexNRC.txt
@@ -101,15 +105,32 @@ MOVE "%location%\Rinex.sum" "%photos%\Output"
 ECHO "Program succesfully executed"
 
 ::Reruns program for more flight data
-:rerun
+:rerunstep
 SET /p "rerun=Enter more flight data? (y/n)"
-IF /I "rerun" EQ "y" (
+IF /I "%rerun%" EQU "y" (
 GOTO :begin
 ) ELSE (
-IF /I "rerun" EQ "n" (
+IF /I "%rerun%" EQU "n" (
+GOTO :multiple
+:end
+PAUSE
 EXIT
 ) ELSE (
-GOTO :rerun
+GOTO :rerunstep
 )
 )
+
+:multiple
+::SET /a count=0
+::ECHO.> "%location%\UAV_camera_coords_all.txt"
+::FOR /r "%location%\Output" %%G in ("UAV_camera_coords_*.txt") do set /a count+=1
+::IF %count% GTR 1 (
+::PAUSE
+::FOR /r "%location%\Output" %%G in ("*.txt") DO (
+::PAUSE
+::TYPE "%%~G">>"%location%\UAV_camera_coords_all"
+::)
+CD "%location%\Output"
+FOR /f "tokens=1,*" %%i in ('dir "UAV_camera_coords_*.txt" ^| findstr "File(s)"') do if %%i gtr 1 type "UAV_camera_coords_*.txt">>"%location%\UAV_camera_coords_all.txt"
+GOTO :end
 
