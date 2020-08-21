@@ -120,16 +120,8 @@ GOTO :rerunstep
 )
 )
 
+::Appends all UAV text files into one
 :multiple
-::SET /a count=0
-::ECHO.> "%location%\UAV_camera_coords_all.txt"
-::FOR /r "%location%\Output" %%G in ("UAV_camera_coords_*.txt") do set /a count+=1
-::IF %count% GTR 1 (
-::PAUSE
-::FOR /r "%location%\Output" %%G in ("*.txt") DO (
-::PAUSE
-::TYPE "%%~G">>"%location%\UAV_camera_coords_all"
-::)
 CD "%location%\Output"
 FOR /f "tokens=1,*" %%i in ('dir "UAV_camera_coords_*.txt" ^| findstr "File(s)"') do if %%i gtr 1 type "UAV_camera_coords_*.txt">>"%location%\UAV_camera_coords_all.txt"
 GOTO :end
