@@ -12,7 +12,7 @@ EXIT
 )
 ::Clears Output files for reuse
 IF EXIST "%location%\UAV_camera_coords_all.txt" DEL "%location%\UAV_camera_coords_all.txt"
-CD "C:\Users\Nile.DESKTOP-ETACD6G\Desktop\Updating 3D Coordinates\Output"
+CD "%USERPROFILE%\Desktop\Updating 3D Coordinates\Output"
 FOR /f "usebackq" %%G in (`DIR /A /B "%location%\Output\*"`) DO DEL %%~G
 
 :begin
@@ -23,7 +23,7 @@ ECHO "Invalid path to directory"
 PAUSE
 EXIT
 )
-FOR /r "%photos%" %%a in ("*Timestamp*") DO SET tmsp=%%~nxa
+FOR /r "%photos%" %%a in ("*_Timestamp.MRK") DO SET tmsp=%%~nxa
 IF NOT DEFINED tmsp (
 ECHO "Directory missing Timestamp file"
 PAUSE
@@ -132,5 +132,3 @@ GOTO :rerunstep
 CD "%location%\Output"
 FOR /f "tokens=1,*" %%i in ('dir "UAV_camera_coords_*.txt" ^| findstr "File(s)"') do if %%i gtr 1 type "UAV_camera_coords_*.txt">>"%location%\UAV_camera_coords_all.txt"
 GOTO :end
-
-
