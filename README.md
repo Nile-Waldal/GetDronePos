@@ -1,2 +1,2 @@
 # GetDronePos
-Download Repo and Run Installer
+Download Repo, Extract zip and Run Installer
