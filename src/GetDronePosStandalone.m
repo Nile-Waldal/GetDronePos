@@ -17,10 +17,10 @@ for i = 1:height(T1)
     extract1 = char(T1{i,1});                                       % goes through every single roll in 1st column
     extract = strcat(D, '\', extract1);                             % counts image file name upwards
     info = imfinfo(extract);
-    lat = dms2degrees(info.GPSInfo.GPSLatitude);
+    lat = dms2degrees(info.GPSInfo.GPSLatitude);                    % extract data from jpeg, translate to degrees
     lon = dms2degrees(info.GPSInfo.GPSLongitude);
     alt = info.GPSInfo.GPSAltitude;                                 
-    if strcmp(info.GPSInfo.GPSLatitudeRef,'S')
+    if strcmp(info.GPSInfo.GPSLatitudeRef,'S')                      % correction for negative values; South & West
         lat = -1 * lat;
     end
     if strcmp(info.GPSInfo.GPSLongitudeRef,'W')
@@ -45,7 +45,7 @@ end
 
 T2 = array2table(m1);
 T2.Properties.VariableNames(1:4) = {'Name','Latitude','Longitude','Altitude'};
-writetable(T2,'Images.txt','WriteVariableNames',0);              % create text file and remove headers   
+writetable(T2,'Images.txt','WriteVariableNames',0);                  % create text file and remove headers   
 name3='Images.txt';
 
 %% READ in position file
@@ -147,7 +147,7 @@ for j=1:size(TimeStamp,1)
         eastFit = polyfit(DataSet(:,5),DataSet(:,3),10);
         elevFit = polyfit(DataSet(:,5),DataSet(:,4),10);
         
-        TimeStamp(j,7) = polyval(northFit,Hour) + TimeStamp(j,4)/1000;                          % ARE THESE VARIABLES USED LATER ON???!!
+        TimeStamp(j,7) = polyval(northFit,Hour) + TimeStamp(j,4)/1000;                          
         TimeStamp(j,8) = polyval(eastFit,Hour) + TimeStamp(j,5)/1000;
         TimeStamp(j,9) = polyval(elevFit,Hour) - TimeStamp(j,6)/1000;          
     end
