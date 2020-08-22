@@ -50,51 +50,51 @@ name3='Images.txt';
 
 %% READ in position file
 name1='Rinex.txt';
-C0 = readtable(name1,'HeaderLines',5);
-Rinex = zeros(size(C0,1),5);
-for k=1:size(C0,1)
+C1 = readtable(name1,'HeaderLines',5);
+Rinex = zeros(size(C1,1),5);
+for k=1:size(C1,1)
     % Year
-    Rinex(k,1)=C0{k,4};
+    Rinex(k,1)=C1{k,4};
     % UTM Northing
-    Rinex(k,2)=C0{k,30};
+    Rinex(k,2)=C1{k,30};
     % UTM Easting
-    Rinex(k,3)=C0{k,29};
+    Rinex(k,3)=C1{k,29};
     % Elevation, it should be in the CGVD2013 system
-    Rinex(k,4)=C0{k,38};
+    Rinex(k,4)=C1{k,38};
     % Time in hours since beginning of UTC day
     Rinex(k,5)= (Rinex(k,1)-fix(Rinex(k,1)))*24.0;
 end
     
 %% READ in TimeStamp file
 name2='Timestamp.txt';
-C0 = readtable(name2);
-TimeStamp=zeros(size(C0,1),10);
+C2 = readtable(name2);
+TimeStamp=zeros(size(C2,1),10);
 
 if m2 ~= 0
     for i = 1:length(m2)
-        C0(m2(1,i),:)=[];                                       % delete specific row in timestamp.txt according to missing jpg files and store new table in C0
+        C2(m2(1,i),:)=[];                                       % delete specific row in timestamp.txt according to missing jpg files and store new table in C0
     end                                                         % WARNING: Timestamp.txt is not changed; only variable C0/TimeStamp is changed in MatLab
 end
 
-for i=1:size(C0,1)    
+for i=1:size(C2,1)    
     % ID
-    TimeStamp(i,1)=C0{i,1};
+    TimeStamp(i,1)=C2{i,1};
     % Seconds after beginning of the GPS week
-    TimeStamp(i,2)=C0{i,2};
+    TimeStamp(i,2)=C2{i,2};
     % GPS week (continuous from Jan 5. 1980 - the true GPS Week Number count began around midnight on Jan. 5, 1980, with two resets once hitting 1,023)
-    WeekNo=C0{i,3};
+    WeekNo=C2{i,3};
     WeekNo=WeekNo{1,1};
     TimeStamp(i,3)=str2double(WeekNo(2:end-1));
     % Correction Northing
-    NorthCor=C0{i,4};
+    NorthCor=C2{i,4};
     NorthCor=NorthCor{1,1};
     TimeStamp(i,4)=str2double(NorthCor(1:end-2));
     % Correction Easting
-    EastCor=C0{i,5};
+    EastCor=C2{i,5};
     EastCor=EastCor{1,1};
     TimeStamp(i,5)=str2double(EastCor(1:end-2));
     % Correction Elevation
-    ElevCor=C0{i,6};
+    ElevCor=C2{i,6};
     ElevCor=ElevCor{1,1};
     TimeStamp(i,6)=str2double(ElevCor(1:end-2));
     % Locations for storing corrected N E Elev
@@ -106,7 +106,7 @@ for i=1:size(C0,1)
 end
 
 %% READ Images' name
-C0 = readtable(name3,'ReadVariableNames',false);                                                           % THIS RECYCLING OF VARIABLE C0 CAN BE CONFUSING~!
+C3 = readtable(name3,'ReadVariableNames',false);                                                           % THIS RECYCLING OF VARIABLE C0 CAN BE CONFUSING~!
 
 %% READ Stamp Location - GPS continuous week count of 2055 starts on 2019-May-26 (Sunday) UTC
 % Under UTC, time jumps every midnight and needs correction
@@ -162,9 +162,9 @@ ylabel('Northing');
 fig=gcf;
 uiwait(fig);
 
-pix4d_data=C0;
-for j=1:size(C0,1)
-    Rows=C0{j,1};
+pix4d_data=C3;
+for j=1:size(C3,1)
+    Rows=C3{j,1};
     ImageNoChar=Rows{1};
     ImageNo=str2double(ImageNoChar(10:13));
     d=find(ImageNo==TimeStamp(:,1));
