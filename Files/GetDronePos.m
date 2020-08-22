@@ -162,8 +162,10 @@ end
 hold on;
 plot3(TimeStamp(:,8),TimeStamp(:,7),TimeStamp(:,9));
 title('Drone Path');
-xlabel('Easting Coordinates') 
-ylabel('Northing Coordinates') 
+xlabel('Easting Coordinates'); 
+ylabel('Northing Coordinates');
+fig=gcf;
+uiwait(fig)
 
 pix4d_data=C0;
 for j=1:size(C0,1)
