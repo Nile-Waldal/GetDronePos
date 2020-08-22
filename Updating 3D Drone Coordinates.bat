@@ -1,5 +1,8 @@
 @ECHO off
 
+::Declares a counter variable for future use
+SET /a cnt=1
+
 ::This location is where the matlab code, RinexPrep.exe and NRC desktop app are located
 SET "location=%USERPROFILE%\Desktop\Updating 3D Coordinates"
 IF NOT EXIST "%location%" (
@@ -20,18 +23,24 @@ ECHO "Invalid path to directory"
 PAUSE
 EXIT
 )
+
+::Checks for Timestamp file and exits if not found
 FOR /r "%photos%" %%a in ("*Timestamp*") DO SET tmsp=%%~nxa
 IF NOT DEFINED tmsp (
 ECHO "Directory missing Timestamp file"
 PAUSE
 EXIT
 )
+
+::Checks for Rinex file and exits if not found
 FOR /r "%photos%" %%a in ("*.obs") DO SET rn=%%~nxa
 IF NOT DEFINED rn (
 ECHO "Directory missing Rinex file"
 PAUSE
 EXIT
 )
+
+::Checks for image files and exits if not found
 FOR /r "%photos%" %%a in ("*.jpg") DO SET ph1=%%~nxa
 FOR /r "%photos%" %%a in ("*.png") DO SET ph2=%%~nxa
 FOR /r "%photos%" %%a in ("*.jpeg") DO SET ph3=%%~nxa
@@ -84,7 +93,7 @@ move "%location%\Files\%file%" "%photos%"
 ::Runs Matlab Script and moves it back to original location
 matlab -wait -batch "try; run('%photos%\GetDronePos.m'); catch; end; quit;"
 move "%photos%\%file%" "%location%\Files"
-FOR /r "%photos%" %%a in ("UAV_camera_coords_*") DO SET uav=%%~nxa
+FOR /r "%photos%" %%a in ("UAV_camera_coords_*") DO SET uav=%%~na
 IF NOT DEFINED uav (
 ECHO "Error in MATLAB Script; UAV_camera_coords.txt not created, check input files"
 )
@@ -92,8 +101,6 @@ ECHO "Error in MATLAB Script; UAV_camera_coords.txt not created, check input fil
 ::Cleans up directories and sends all outputs to the output files
 CD "%location%"
 DEL Rinex_full_output.zip
-XCOPY "%photos%\UAV_camera_coords_*.txt" "%location%\Output"
-MOVE "%photos%\UAV_camera_coords_*.txt" "%photos%\Output"
 CD "%photos%"
 REN "%photos%\Rinex.txt" RinexNRC.txt
 MOVE "%photos%\RinexNRC.txt" "%photos%\Output"
@@ -102,6 +109,15 @@ MOVE "%location%\output_descriptions.txt" "%photos%\Output"
 MOVE "%location%\Rinex.csv" "%photos%\Output"
 MOVE "%location%\Rinex.pdf" "%photos%\Output"
 MOVE "%location%\Rinex.sum" "%photos%\Output"
+
+::Renames output file in Updating 3D Coordinates\Output if there are duplicates
+IF EXIST "%location%\Output\%uav%.txt" (
+REN "%location%\Output\%uav%.txt" "%uav%_%cnt%.txt"
+cnt+=1
+)
+XCOPY "%photos%\UAV_camera_coords_*.txt" "%location%\Output"
+MOVE "%photos%\UAV_camera_coords_*.txt" "%photos%\Output"
+
 ECHO "Program succesfully executed"
 
 ::Reruns program for more flight data
@@ -125,4 +141,7 @@ GOTO :rerunstep
 CD "%location%\Output"
 FOR /f "tokens=1,*" %%i in ('dir "UAV_camera_coords_*.txt" ^| findstr "File(s)"') do if %%i gtr 1 type "UAV_camera_coords_*.txt">>"%location%\UAV_camera_coords_all.txt"
 GOTO :end
+
+
+
 
