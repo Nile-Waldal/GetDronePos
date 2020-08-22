@@ -1,6 +1,6 @@
 function GetDronePos
 format longE; warning off;
-% BEFORE INITIATING PROGRAM, USER MUST ENSURE RINEX.TXT, TIMESTAMP.TXT IS IN APPROPRIATE DIRECTORY
+% BEFORE INITIATING PROGRAM, USER MUST ENSURE text files: Rinex, Timestamp IS IN APPROPRIATE DIRECTORY
 
 % Create Images.txt
 prompt = {'Path directory of selected jpeg files: '};
@@ -153,11 +153,14 @@ for j=1:size(TimeStamp,1)
     end
 end
 
-%Graphs for images 
-%Fn = polyval(northFit,DataSet(:,5));
-%plot(DataSet(:,5),DataSet(:,2), 'o')
-%hold on 
-%plot(DataSet(:,5), Fn, 'r--')
+%Graphs for images
+hold on;
+plot3(TimeStamp(:,8),TimeStamp(:,7),TimeStamp(:,9));
+title('Drone Flight Path');
+xlabel('Easting'); 
+ylabel('Northing');
+fig=gcf;
+uiwait(fig);
 
 pix4d_data=C0;
 for j=1:size(C0,1)
