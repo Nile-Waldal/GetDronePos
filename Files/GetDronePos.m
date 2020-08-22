@@ -8,7 +8,7 @@ folder=pwd;
 
 %Creates structures with information of images and timestamp.MRK
 filenames=dir('*_*_*.jpg');
-time=dir('*_timestamp.MRK');
+time=dir('*_Timestamp.MRK');
 
 %Creates tables for image names and timestamp
 opts=detectImportOptions(time.name,'FileType','text');
