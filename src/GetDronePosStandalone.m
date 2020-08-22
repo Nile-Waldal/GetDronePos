@@ -1,6 +1,6 @@
 function GetDronePos
 format longE; warning off;
-% BEFORE INITIATING PROGRAM, USER MUST ENSURE text files: Rinex, Timestamp IS IN APPROPRIATE DIRECTORY
+% BEFORE INITIATING PROGRAM, USER MUST ENSURE TEXT FILE IS IN MATLAB DIRECTORY: Rinex, Timestamp
 
 % Create Images.txt
 prompt = {'Path directory of selected jpeg files: '};
@@ -73,7 +73,7 @@ TimeStamp=zeros(size(C0,1),10);
 if m2 ~= 0
     for i = 1:length(m2)
         C0(m2(1,i),:)=[];                                       % delete specific row in timestamp.txt according to missing jpg files and store new table in C0
-    end                                                         % % WARNING: Timestamp.txt is not changed; only variable C0/TimeStamp is changed in MatLab
+    end                                                         % WARNING: Timestamp.txt is not changed; only variable C0/TimeStamp is changed in MatLab
 end
 
 for i=1:size(C0,1)    
