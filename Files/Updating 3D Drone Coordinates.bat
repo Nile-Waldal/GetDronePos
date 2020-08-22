@@ -10,6 +10,17 @@ ECHO "Program Not Installed. Run Installer."
 PAUSE
 EXIT
 )
+::Checks for NRC shortcut
+IF NOT EXIST "%location%\Files\PPP direct (Updating 3D).lnk" (
+IF NOT EXIST "%USERPROFILE%\Desktop\PPP direct (Updating 3D).lnk" (
+ECHO No or invalid NRC configuration created. Run ppp direct program to create configuration.
+PAUSE
+EXIT
+) ELSE (
+MOVE "%USERPROFILE%\Desktop\PPP direct (Updating 3D).lnk" "%USERPROFILE%\Desktop\Updating 3D Coordinates\Files"
+)
+)
+
 ::Clears Output files for reuse
 IF EXIST "%location%\UAV_camera_coords_all.txt" DEL "%location%\UAV_camera_coords_all.txt"
 CD "%USERPROFILE%\Desktop\Updating 3D Coordinates\Output"
