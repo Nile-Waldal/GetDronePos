@@ -16,25 +16,43 @@ CD "%USERPROFILE%\Desktop\Updating 3D Coordinates\Output"
 FOR /f "usebackq" %%G in (`DIR /A /B "%location%\Output\*"`) DO DEL %%~G
 
 :begin
+
 ::Prompts User for directory of drone files, i.e. the pictures, .mrk file and .obs file
-SET /p photos="Enter full path to directory: "
+setlocal
+
+::Opens file browser
+set "psCommand="(new-object -COM 'Shell.Application')^
+.BrowseForFolder(0,'Please choose a folder.',0,0).self.path""
+
+::Sets folder chosen as photos
+for /f "usebackq delims=" %%I in (`powershell %psCommand%`) do set "photos=%%I"
+setlocal enableDelayedExpansion
+endlocal
+
+::Checks to see if the path is a valid directory
 IF NOT EXIST "%photos%" (
 ECHO "Invalid path to directory"
 PAUSE
 EXIT
 )
+
+::Checks to see if the path has a timestamp file
 FOR /r "%photos%" %%a in ("*_Timestamp.MRK") DO SET tmsp=%%~nxa
 IF NOT DEFINED tmsp (
 ECHO "Directory missing Timestamp file"
 PAUSE
 EXIT
 )
+
+::Checks to see if the path has a Rinex file
 FOR /r "%photos%" %%a in ("*.obs") DO SET rn=%%~nxa
 IF NOT DEFINED rn (
 ECHO "Directory missing Rinex file"
 PAUSE
 EXIT
 )
+
+::Checks to see if the path has photos
 FOR /r "%photos%" %%a in ("*.jpg") DO SET ph1=%%~nxa
 FOR /r "%photos%" %%a in ("*.png") DO SET ph2=%%~nxa
 FOR /r "%photos%" %%a in ("*.jpeg") DO SET ph3=%%~nxa
