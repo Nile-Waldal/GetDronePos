@@ -1,7 +1,8 @@
-ECHO "Enter separate data sets from oldest to newest"
 @ECHO off
+ECHO "Enter separate data sets from oldest to newest"
 
-::Declares a counter variable for future use
+
+::Declares counter variables for future use
 SET /a cnt=1
 
 ::This location is where the matlab code, RinexPrep.exe and NRC desktop app are located
@@ -11,6 +12,7 @@ ECHO "Program Not Installed. Run Installer."
 PAUSE
 EXIT
 )
+
 ::Checks for NRC shortcut
 IF NOT EXIST "%location%\Files\PPP direct (Updating 3D).lnk" (
 IF NOT EXIST "%USERPROFILE%\Desktop\PPP direct (Updating 3D).lnk" (
@@ -29,6 +31,10 @@ FOR /f "usebackq" %%G in (`DIR /A /B "%location%\Output\*"`) DO DEL %%~G
 
 :begin
 
+::Sets counter variables for later
+SET /a ct=0
+SET /a cr=0
+
 ::Prompts User for directory of drone files, i.e. the pictures, .mrk file and .obs file
 setlocal
 
@@ -45,23 +51,41 @@ endlocal
 IF NOT EXIST "%photos%" (
 ECHO "Invalid path to directory"
 PAUSE
-EXIT
+GOTO :begin
 )
 
-::Checks to see if the path has a timestamp file
-FOR /r "%photos%" %%a in ("*_Timestamp.MRK") DO SET tmsp=%%~nxa
+::Checks to see if the path has exactly one timestamp file
+FOR /r "%photos%" %%a in ("*_Timestamp.MRK") DO (
+SET tmsp=%%~nxa
+SET /a ct+=1
+)
+
 IF NOT DEFINED tmsp (
 ECHO "Directory missing Timestamp file"
 PAUSE
-EXIT
+GOTO :begin
+)
+IF %ct% GTR 1 (
+ECHO "Directory has more than one Timestamp file"
+PAUSE
+GOTO :begin
 )
 
-::Checks to see if the path has a Rinex file
-FOR /r "%photos%" %%a in ("*.obs") DO SET rn=%%~nxa
+::Checks to see if the path has exactly one Rinex file
+FOR /r "%photos%" %%a in ("*.obs") DO (
+SET rn=%%~nxa
+SET /a cr+=1
+)
+
 IF NOT DEFINED rn (
 ECHO "Directory missing Rinex file"
 PAUSE
-EXIT
+GOTO :begin
+)
+IF %cr% GTR 1 (
+ECHO "Directory has more than one Rinex file"
+PAUSE
+GOTO :begin
 )
 
 ::Checks to see if the path has photos
@@ -73,7 +97,7 @@ IF NOT DEFINED ph2 (
 IF NOT DEFINED ph3 (
 ECHO "Directory missing image files"
 PAUSE
-EXIT
+GOTO :begin
 )
 )
 )
@@ -84,7 +108,7 @@ IF EXIST "%location%\%photos%" (
 ECHO "Invalid path to directory"
 DEL "%location%\%photos%"
 PAUSE
-EXIT
+GOTO :begin
 )
 
 ::Formats .obs file to proper specifications
@@ -127,12 +151,11 @@ CD "%location%"
 DEL Rinex_full_output.zip
 IF EXIST "%location%\Output\%uav%.txt" (
 REN "%location%\Output\%uav%.txt" "%uav%_%cnt%.txt"
-cnt+=1
+SET /a cnt+=1
 )
 XCOPY "%photos%\UAV_camera_coords_*.txt" "%location%\Output"
 MOVE "%photos%\UAV_camera_coords_*.txt" "%photos%\Output"
 CD "%photos%"
-MOVE "%photos%\DronePath.fig" "%photos%\Output"
 REN "%photos%\Rinex.txt" RinexNRC.txt
 MOVE "%photos%\RinexNRC.txt" "%photos%\Output"
 MOVE "%location%\errors.txt" "%photos%\Output"
