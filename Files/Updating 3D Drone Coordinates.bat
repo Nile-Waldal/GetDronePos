@@ -1,3 +1,4 @@
+ECHO "Enter separate data sets from oldest to newest"
 @ECHO off
 
 ::Declares a counter variable for future use
