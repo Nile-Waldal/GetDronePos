@@ -131,6 +131,7 @@ cnt+=1
 XCOPY "%photos%\UAV_camera_coords_*.txt" "%location%\Output"
 MOVE "%photos%\UAV_camera_coords_*.txt" "%photos%\Output"
 CD "%photos%"
+MOVE "%photos%\DronePath.fig" "%photos%\Output"
 REN "%photos%\Rinex.txt" RinexNRC.txt
 MOVE "%photos%\RinexNRC.txt" "%photos%\Output"
 MOVE "%location%\errors.txt" "%photos%\Output"
