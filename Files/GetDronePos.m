@@ -165,7 +165,7 @@ title('Drone Path');
 xlabel('Easting Coordinates'); 
 ylabel('Northing Coordinates');
 fig=gcf;
-uiwait(fig);
+savefig('DronePath.fig');
 
 pix4d_data=C0;
 for j=1:size(C0,1)
