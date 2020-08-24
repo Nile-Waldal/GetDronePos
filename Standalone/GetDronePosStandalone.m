@@ -160,7 +160,7 @@ title('Drone Flight Path');
 xlabel('Easting'); 
 ylabel('Northing');
 fig=gcf;
-uiwait(fig);
+savefig(fig);
 
 pix4d_data=C3;
 for j=1:size(C3,1)
