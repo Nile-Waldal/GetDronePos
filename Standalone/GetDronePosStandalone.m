@@ -106,7 +106,7 @@ for i=1:size(C2,1)
 end
 
 %% READ Images' name
-C3 = readtable(name3,'ReadVariableNames',false);                                                           % THIS RECYCLING OF VARIABLE C0 CAN BE CONFUSING~!
+C3 = readtable(name3,'ReadVariableNames',false);                                                   
 
 %% READ Stamp Location - GPS continuous week count of 2055 starts on 2019-May-26 (Sunday) UTC
 % Under UTC, time jumps every midnight and needs correction
