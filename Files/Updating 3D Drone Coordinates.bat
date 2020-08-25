@@ -6,7 +6,8 @@ ECHO "Enter separate data sets from oldest to newest"
 SET /a cnt=1
 
 ::This location is where the matlab code, RinexPrep.exe and NRC desktop app are located
-SET "location=%USERPROFILE%\Desktop\Updating 3D Coordinates"
+CD /D %~dp0
+SET location=%cd%
 IF NOT EXIST "%location%" (
 ECHO "Program Not Installed. Run Installer."
 PAUSE
@@ -20,13 +21,13 @@ ECHO No or invalid NRC configuration created. Run ppp direct program to create c
 PAUSE
 EXIT
 ) ELSE (
-MOVE "%USERPROFILE%\Desktop\PPP direct (Updating 3D).lnk" "%USERPROFILE%\Desktop\Updating 3D Coordinates\Files"
+MOVE "%USERPROFILE%\Desktop\PPP direct (Updating 3D).lnk" "%location%\Files"
 )
 )
 
 ::Clears Output files for reuse
 IF EXIST "%location%\UAV_camera_coords_all.txt" DEL "%location%\UAV_camera_coords_all.txt"
-CD "%USERPROFILE%\Desktop\Updating 3D Coordinates\Output"
+CD "%location%\Output"
 FOR /f "usebackq" %%G in (`DIR /A /B "%location%\Output\*"`) DO DEL %%~G
 
 :begin
