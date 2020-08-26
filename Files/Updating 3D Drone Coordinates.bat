@@ -164,7 +164,7 @@ MOVE "%location%\output_descriptions.txt" "%photos%\Output"
 MOVE "%location%\Rinex.csv" "%photos%\Output"
 MOVE "%location%\Rinex.pdf" "%photos%\Output"
 MOVE "%location%\Rinex.sum" "%photos%\Output"
-MOVE "%photos%\DronePath.fig" "%photos%\Output"
+MOVE "%photos%\DronePath.jpg" "%photos%\Output"
 ECHO "Program succesfully executed"
 
 ::Reruns program for more flight data
