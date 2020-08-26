@@ -160,7 +160,7 @@ end
 
 %Graphs for images
 hold on;
-plot3(TimeStamp(:,8),TimeStamp(:,7),TimeStamp(:,9));
+plot3(TimeStamp(:,8),TimeStamp(:,7),TimeStamp(:,9),'b-x');
 title('Drone Path');
 xlabel('Easting Coordinates'); 
 ylabel('Northing Coordinates');
