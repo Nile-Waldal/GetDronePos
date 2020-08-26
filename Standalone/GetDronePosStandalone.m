@@ -159,8 +159,7 @@ plot3(TimeStamp(:,8),TimeStamp(:,7),TimeStamp(:,9),'b-x');
 title('Drone Flight Path');
 xlabel('Easting'); 
 ylabel('Northing');
-fig=gcf;
-savefig(fig);
+saveas(gcf,'DronePath.jpg');
 
 pix4d_data=C3;
 for j=1:size(C3,1)
