@@ -161,7 +161,7 @@ xlabel('Easting');
 ylabel('Northing');
 saveas(gcf,'DronePath.jpg');
 
-pix4d_data=C3;
+pix4d_data=table2cell(C3);
 for j=1:size(C3,1)
     Rows=C3{j,1};
     ImageNoChar=Rows{1};
@@ -172,5 +172,6 @@ for j=1:size(C3,1)
     pix4d_data(j,4)={TimeStamp(d,9)};
 end
 name3=['UAV_camera_coords_' int2str(size(pix4d_data,1)) '.txt'];
+pix4d_data=cell2table(pix4d_data);
 % ID Easting Northing Elevation   
 writetable(pix4d_data,name3,'WriteVariableNames',false);    
