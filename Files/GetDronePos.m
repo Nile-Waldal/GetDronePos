@@ -1,4 +1,5 @@
 
+
 %% Image and Timestamp Prep
 format longE; warning off;
 % BEFORE INITIATING PROGRAM, USER MUST ENSURE RINEX.TXT, TIMESTAMP.TXT IS IN APPROPRIATE DIRECTORY
@@ -17,7 +18,7 @@ C1=readtable(time.name,opts);
 
 
 %Preallocates images.txt table
-m1=table('Size',[size(names,1),4],'VariableTypes',{'string','double','double','double'});
+m1=table('Size',[size(names,1),5],'VariableTypes',{'string','double','double','double','int8'});
 
 for i = 1:size(names,1)
     
@@ -70,6 +71,8 @@ for k=1:size(C0,1)
     Rinex(k,4)=C0{k,38};
     % Time in hours since beginning of UTC day
     Rinex(k,5)= (Rinex(k,1)-fix(Rinex(k,1)))*24.0;
+    % UTM Zone
+    Rinex(k,6)= C0{k,28};
 end
     
 %% READ in TimeStamp file
@@ -97,10 +100,11 @@ for i=1:size(C0,1)
     ElevCor=C0{i,6};
     ElevCor=ElevCor{1,1};
     TimeStamp(i,6)=str2double(ElevCor(1:end-2));
-    % Locations for storing corrected N E Elev
+    % Locations for storing corrected N E Elev Zone
     TimeStamp(i,7)=0;
     TimeStamp(i,8)=0;
     TimeStamp(i,9)=0;
+    TimeStamp(i,11)=0;
     % Time in hours since beginning of GPS week
     TimeStamp(i,10)=TimeStamp(i,2)/60/60-fix(TimeStamp(i,2)/60/60/24)*24;
 end
@@ -144,18 +148,24 @@ for j=1:size(TimeStamp,1)
     % linear interpolation is performed.
     if cl==0 || idx==size(Rinex,1) || idx==1
         TimeStamp(j,7:9)=Rinex(idx,2:4)+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
+        
     elseif idx==size(Rinex,1)-points+1 || idx==points
         TimeStamp(j,7:9)=Rinex(idx,2:4)+(Rinex(idx+cl,2:4)-Rinex(idx,2:4))/(Rinex(idx+cl,5)-Rinex(idx,5))*(Hour-Rinex(idx,5))+[TimeStamp(j,4:5),-TimeStamp(j,6)]/1000;
+        
     else
         DataSet = Rinex(idx-points:idx+points,1:5);
         northFit = polyfit(DataSet(:,5),DataSet(:,2),10);
         eastFit = polyfit(DataSet(:,5),DataSet(:,3),10);
         elevFit = polyfit(DataSet(:,5),DataSet(:,4),10);
         
-        TimeStamp(j,7) = polyval(northFit,Hour) + TimeStamp(j,4)/1000;                          % ARE THESE VARIABLES USED LATER ON???!!
+        TimeStamp(j,7) = polyval(northFit,Hour) + TimeStamp(j,4)/1000;                    
         TimeStamp(j,8) = polyval(eastFit,Hour) + TimeStamp(j,5)/1000;
-        TimeStamp(j,9) = polyval(elevFit,Hour) - TimeStamp(j,6)/1000;          
+        TimeStamp(j,9) = polyval(elevFit,Hour) - TimeStamp(j,6)/1000;
+        
     end
+    
+    %Sets Zone as zone of closest rinex file
+    TimeStamp(j,11)=Rinex(idx,6);
 end
 
 %Graphs for images
@@ -164,7 +174,8 @@ plot3(TimeStamp(:,8),TimeStamp(:,7),TimeStamp(:,9),'b-x');
 title('Drone Path');
 xlabel('Easting Coordinates'); 
 ylabel('Northing Coordinates');
-saveas(gcf,'DronePath.jpg');
+fig=gcf;
+saveas(fig,'DronePath.jpg');
 
 pix4d_data=C0;
 for j=1:size(C0,1)
@@ -175,6 +186,8 @@ for j=1:size(C0,1)
     pix4d_data(j,2)={TimeStamp(d,8)};
     pix4d_data(j,3)={TimeStamp(d,7)};
     pix4d_data(j,4)={TimeStamp(d,9)};
+    pix4d_data(j,5)={Rinex(d,6)};
+    
 end
 name3=['UAV_camera_coords_' int2str(size(pix4d_data,1)) '.txt'];
 % ID Easting Northing Elevation   
