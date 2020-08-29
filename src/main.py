@@ -2,6 +2,24 @@ import piexif, os, glob, math
 from PIL import Image
 from fractions import Fraction
 
+#Converts a number to the rational format (int, int) which represents a number
+#as (number's numerator, number's denominator)
+def num2rat(num):
+  #Rounds number to ensure numerator and denominator aren't too large
+  x=round(num,7)
+
+  frac=Fraction(str(x))
+  return (frac.numerator, frac.denominator)
+
+#Converts angle into a list of rational data types representing whole number
+#degrees, whole number arcminutes and decimal arcseconds
+def deg2list(t):
+  degs=int(math.floor(t))
+  mins=int(math.floor((t-degs)*60))
+  secs=((t-degs)*60-mins)*60
+  secsrat=num2rat(secs)
+  return [(degs,1),(mins,1),secsrat]
+
 #Finds current directory
 directory=os.getcwd()
 
@@ -24,11 +42,10 @@ for strn in lines:
   elev=float(entries[3])
   Zone=int(entries[4])
   
-  #Converts elevation into rational data type, which is a fractional representation of a number in the form (numerator, denominator)
-  #Requires rounding elevation so numerator and denominator are small numbers
-  felev=round(Fraction(str(elev)),5)
-  elevrat=(felev.numerator, felev.denominator)
-
+  #Converts elevation into rational data type, which is a fractional representation
+  #of a number in the form (numerator, denominator)
+  elevrat=num2rat(elev)
+  
   #Sets constants for use in conversion from UTM to GPS
   #Equitorial radius of earth in meters
   a=6378137
@@ -83,19 +100,11 @@ for strn in lines:
   else:
     hemiH="E"
 
-  #Splits latitude and longitude into degrees, arcminutes and arcseconds
-  #and converts seconds into rational format 
-  latdeg=int(math.floor(lat))
-  latmin=int(math.floor((lat-latdeg)*60))
-  latsec=round(((lat-latdeg)*60-latmin)*60,5)
-  flat=Fraction(str(latsec))
-  latrat=(flat.numerator, flat.denominator)
-  
-  longdeg=int(math.floor(long))
-  longmin=int(math.floor((long-longdeg)*60))
-  longsec=round(((long-longdeg)*60-longmin)*60,5)
-  flong=Fraction(str(longsec))
-  longrat=(flong.numerator, flong.denominator)
+  #Splits latitude and longitude into degrees, arcminutes and arcseconds,
+  # converts seconds into rational format and puts all parts in a list
+
+  latlist=deg2list(lat)
+  longlist=deg2list(long)
 
   #Loops through directory filenames
   for fname in os.listdir(directory):
@@ -113,9 +122,9 @@ for strn in lines:
         piexif.GPSIFD.GPSAltitudeRef: 0,
         piexif.GPSIFD.GPSAltitude: elevrat,
         piexif.GPSIFD.GPSLatitudeRef: hemiV,
-        piexif.GPSIFD.GPSLatitude: [(latdeg,1),(latmin,1),latrat],
+        piexif.GPSIFD.GPSLatitude: latlist,
         piexif.GPSIFD.GPSLongitudeRef: hemiH,
-        piexif.GPSIFD.GPSLongitude: [(longdeg,1),(longmin,1),longrat],
+        piexif.GPSIFD.GPSLongitude: longlist,
         }
 
       #Defines the updated GPS entry as a dictionary which can be assumed by
