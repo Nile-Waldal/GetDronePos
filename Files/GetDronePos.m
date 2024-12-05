@@ -1,21 +1,31 @@
-function GetDronePos
+
+%% Image and Timestamp Prep
 format longE; warning off;
 % BEFORE INITIATING PROGRAM, USER MUST ENSURE RINEX.TXT, TIMESTAMP.TXT IS IN APPROPRIATE DIRECTORY
 
-% Create Images.txt
-prompt = {'Path directory of selected jpeg files: '};
-dlgtitle = 'DOBBY';
-dims = [1 55];
-D = char(inputdlg(prompt,dlgtitle,dims));
+%Gets folder of matlab script, which should be in images folder if batch file was used
+folder=pwd;
 
-F = dir(fullfile(D,'*.jpg'));                                       % specify the file extension to exclude directories
-T = struct2table(F);
-T1 = removevars(T,{'folder','date','bytes','isdir','datenum'});
-m1 = {0};j=0;m2 = (0);
+%Creates structures with information of images and timestamp.MRK
+filenames=dir('*_*_*.jpg');
+time=dir('*_Timestamp.MRK');
 
-for i = 1:height(T1)
-    extract1 = char(T1{i,1});                                       % goes through every single roll in 1st column
-    extract = strcat(D, '\', extract1);                             % counts image file name upwards
+%Creates tables for image names and timestamp
+opts=detectImportOptions(time.name,'FileType','text');
+names=cell2table({filenames.name}','VariableNames',{'Names'});
+C1=readtable(time.name,opts);
+
+
+%Preallocates images.txt table
+m1=table('Size',[size(names,1),4],'VariableTypes',{'string','double','double','double'});
+
+for i = 1:size(names,1)
+    
+    % goes through every single name in 1st column
+    extract0 = names{i,1} ;
+    extract1= extract0{1};
+    % counts image file name upwards
+    extract = strcat(folder, '\', extract1);                            
     info = imfinfo(extract);
     lat = dms2degrees(info.GPSInfo.GPSLatitude);
     lon = dms2degrees(info.GPSInfo.GPSLongitude);
@@ -26,27 +36,24 @@ for i = 1:height(T1)
     if strcmp(info.GPSInfo.GPSLongitudeRef,'W')
         lon = -1 * lon;
     end
- 	m1{i,1} = extract1;                                             % creation of images.txt: 1st column is name
+    
+    % creation of images.txt table; 1st column is name
+ 	m1{i,1} = extract0;                                             
     m1{i,2} = lat;
     m1{i,3} = lon;
     m1{i,4} = alt;
-    
-    inFolder = char(T1{i-j,1});                                     % checks missing jpeg files, stores index
-    extract2 = inFolder(1:end-8);
-    extract3 = sprintf('%04d.JPG', i);
-    control = strcat(extract2,extract3);  
-    if (strcmp(inFolder,control)==0)                        
-        display(control);
-        j = j+1;
-        m2(1,j) = i;  
-    end 
-
 end
 
-T2 = array2table(m1);
-T2.Properties.VariableNames(1:4) = {'Name','Latitude','Longitude','Altitude'};
-writetable(T2,'Images.txt','WriteVariableNames',0);              % create text file and remove headers   
-name3='Images.txt';
+%Creates timestamp table with images not in directory excluded
+for i=1:size(names,1)
+    ent=m1{i,1};
+    imname=ent{1};
+    id=str2double(imname(10:13));
+    idtimestamp=C1{:,1};
+    idx=find(idtimestamp==id);
+    Row=C1(idx,:);
+    TimestampNew(i,:)=Row;
+end
 
 %% READ in position file
 name1='Rinex.txt';
@@ -66,15 +73,8 @@ for k=1:size(C0,1)
 end
     
 %% READ in TimeStamp file
-name2='Timestamp.txt';
-C0 = readtable(name2);
+C0 = TimestampNew;
 TimeStamp=zeros(size(C0,1),10);
-
-if m2 ~= 0
-    for i = 1:length(m2)
-        C0(m2(1,i),:)=[];                                       % delete specific row in timestamp.txt according to missing jpg files and store new table in C0
-    end                                                         % % WARNING: Timestamp.txt is not changed; only variable C0/TimeStamp is changed in MatLab
-end
 
 for i=1:size(C0,1)    
     % ID
@@ -106,7 +106,7 @@ for i=1:size(C0,1)
 end
 
 %% READ Images' name
-C0 = readtable(name3,'ReadVariableNames',false);                                                           % THIS RECYCLING OF VARIABLE C0 CAN BE CONFUSING~!
+C0 = m1;
 
 %% READ Stamp Location - GPS continuous week count of 2055 starts on 2019-May-26 (Sunday) UTC
 % Under UTC, time jumps every midnight and needs correction
@@ -115,18 +115,23 @@ for j1=1:size(TimeStamp,1)-1
         TimeStamp(j1+1:end,10)=TimeStamp(j1+1:end,10)+24; 
     end
 end
+
 for j=1:size(Rinex,1)-1
     if abs(Rinex(j,5)-Rinex(j+1,5))>23
         Rinex(j+1:end,5)=Rinex(j+1:end,5)+24;
     end
 end
+
 % DJI captures images every t second. GPS location is recorded every 0.2s. Assuming constant velocity, timestamp is linearly interpolated.
 for j=1:size(TimeStamp,1) 
     Hour=TimeStamp(j,10);
+    
     % Finds closest Rinex time to the Timestamp time and determines index of its column.
     [~,idx]=min(abs(Hour-Rinex(:,5)));
+    
     % Determines whether Rinex entry is before or after Timestamp entry to determine which point should be taken for the interpolation.
     cl=sign(Hour-Rinex(idx,5));
+    
     %Determines the number of points (either side of center) to consider for interpolation.
     points = 2; 
     
@@ -153,11 +158,13 @@ for j=1:size(TimeStamp,1)
     end
 end
 
-%Graphs for images 
-%Fn = polyval(northFit,DataSet(:,5));
-%plot(DataSet(:,5),DataSet(:,2), 'o')
-%hold on 
-%plot(DataSet(:,5), Fn, 'r--')
+%Graphs for images
+hold on;
+plot3(TimeStamp(:,8),TimeStamp(:,7),TimeStamp(:,9),'b-x');
+title('Drone Path');
+xlabel('Easting Coordinates'); 
+ylabel('Northing Coordinates');
+saveas(gcf,'DronePath.jpg');
 
 pix4d_data=C0;
 for j=1:size(C0,1)
